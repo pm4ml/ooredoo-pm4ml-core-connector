@@ -1,0 +1,23 @@
+{
+  serviceCode: "LDCASHIN",
+  bearerCode: "USSD",
+  transactionAmount: cml.exchangeProperty("origPayload").prepare.body.amount.amount,
+  currency: "101",
+  externalReferenceId: "123456787",
+  remarks: "Receive_Money",
+  transactionMode: "transactionMode",
+  initiator: "transactor",
+  language: "en",
+  transactor: {
+    idType: "mobileNumber",
+    idValue: cml.exchangeProperty("idValue"),
+    productId: cml.exchangeProperty("productId"),
+    mpin: cml.exchangeProperty("mpin"),
+    tpin: cml.exchangeProperty("tpin")
+  },
+  receiver: {
+    idType: "mobileNumber",
+    idValue: cml.exchangeProperty("origPayload").quoteRequest.body.payee.partyIdInfo.partyIdentifier,
+    productId: cml.exchangeProperty("productId")
+  }
+}

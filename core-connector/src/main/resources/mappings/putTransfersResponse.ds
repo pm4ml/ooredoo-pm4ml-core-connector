@@ -1,0 +1,8 @@
+if std.objectHas(payload, "errors")
+then
+{
+  "statusCode": payload.errors[0].code,
+  "message": payload.errors[0].message
+}
+else
+{}

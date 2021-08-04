@@ -1,0 +1,8 @@
+{
+  "type": "BUSINESS",
+  "idType": cml.header('idType'),
+  "idValue": cml.header('idValue'),
+  "firstName": payload.COMMAND.FNAME,
+  "lastName": payload.COMMAND.LNAME,
+  "displayName": payload.COMMAND.NAME
+}

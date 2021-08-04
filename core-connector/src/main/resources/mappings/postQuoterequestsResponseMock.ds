@@ -1,0 +1,12 @@
+{
+  "quoteId": payload.quoteId,
+  "transactionId": payload.transactionId,
+  "transferAmount": payload.amount,
+  "transferAmountCurrency": payload.currency,
+  "payeeReceiveAmount": payload.amount,
+  "payeeReceiveAmountCurrency": payload.currency,
+  "payeeFspFeeAmount": "0",
+  "payeeFspFeeAmountCurrency": payload.currency,
+  "payeeFspCommissionAmount": "0",
+  "payeeFspCommissionAmountCurrency": payload.currency,
+}
