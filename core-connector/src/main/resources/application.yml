@@ -29,6 +29,11 @@ camel:
 #  password: pass
 #  api-key: key
 #  api-version: v1
+#  product-id: 123
+#  agent:
+#    mobile-number: 123
+#    mpin: 123
+#    tpin: 123
 
 ### properties for Mojaloop Connector connection
 #ml-conn:
