@@ -7,7 +7,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 
-public class SendmoneyRouter extends RouteBuilder {
+public class SendMoneyRouter extends RouteBuilder {
 
     private static final String TIMER_NAME_POST = "histogram_post_sendmoney_timer";
     private static final String TIMER_NAME_PUT = "histogram_put_sendmoney_by_id_timer";
@@ -62,6 +62,10 @@ public class SendmoneyRouter extends RouteBuilder {
 
                 .toD("{{ml-conn.outbound.host}}/transfers?bridgeEndpoint=true")
                 .unmarshal().json()
+
+                // Check for account closed/written off message from CBS
+                .to("direct:extensionListCheckError")
+
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Response from outbound API, postTransfers: ${body}', " +
                         "'Tracking the response', 'Verify the response', null)")
@@ -69,6 +73,10 @@ public class SendmoneyRouter extends RouteBuilder {
 //            .setProperty("postSendMoneyInitial", body())
                 // Send request to accept the party instead of hard coding AUTO_ACCEPT_PARTY: true
 //            .to("direct:putTransfersAcceptParty")
+
+                // Add CORS headers
+//            .process(corsFilter)
+
                 .process(exchange -> {
                     ((Histogram.Timer) exchange.getProperty(TIMER_NAME_POST)).observeDuration(); // stop Prometheus Histogram metric
                 })
@@ -130,6 +138,21 @@ public class SendmoneyRouter extends RouteBuilder {
                 .process(exchange -> {
                     ((Histogram.Timer) exchange.getProperty(TIMER_NAME_PUT)).observeDuration(); // stop Prometheus Histogram metric
                 })
+        ;
+
+        from("direct:extensionListCheckError")
+                .routeId("com.modusbox.extensionListCheckError")
+
+                // Check for account closed/written off message from CBS
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/extensionListCheckError.ds"))
+                .setBody(simple("${body.content}"))
+
+                // Conditional whether errorMessage was found
+                .choice()
+                .when(simple("${body.get('statusCode')} == '3241'"))
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(409))
+                .end()
         ;
     }
 }
